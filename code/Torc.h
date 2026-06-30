@@ -159,11 +159,11 @@ private:
 	msModelPerSecThr(0.), msPropPerModelThr(0.), msModelPerSecOnlyForFirstInv(true), msMutCombUseBestModel(false), msInitBadStrat(1), msRndFreqForMublox(0.), msMinLBDFrozenClauseForMublox(30), msConflToChrono(4000), msChrono(-1), poContLocalImpr(0), 
 	partialSumFailItersToSwitch(0), partialSumLayersThr(10), partialSumConflicts(1000), pplcHolder(0), mrsBeaverSizeSwitchToComplete(1000000), mrsBeaverEachIterStartBestModel(0), blockBestModel(0), polosatTurnOffHighLevelConfThrForIters(0), optimisticMaxSoftFraction(1.), conservativeMaxSoftFraction(1.), 
 	weightedObvBsFirstIterStrat(0), wobsAdaptiveStoppedStopMs(0), wobsAdaptiveNotStoppedMSThrMult(1.), msObvStrat(3), mrsBeaverPolosatRegulateStrat(0), mrsBeaverApplySizeThrDuringInitialPolosat(0),
-	skipFillingSolverPolarity(false), printEveryModel(0), 
-	nuwlsMode(0), nuwlsIsExternalTimeLimit(0), nuwlsExternalTimeLimit(0), satlikeMode(0), satlikeInvsThr(0), satlikeTimeThr(15), satlikeInitTimeThr(5), satlikePreInitTimeThr(1), satlikePreInitMaxClss(10000000), satlikeMaxFlips(10000000), satlikeMaxNonImproveFlip(10000000), satlikeMaxFlipsReduceBeyondClsNum(0), satlikeReinvokeTimeThr(60), satlikeReinvokeMult(1.), satlikeMimicMse21(0),
-	totProp0s(0), totBuildLayered(0), 
+	printEveryModel(0),
+	nuwlsMode(0), nuwlsIsExternalTimeLimit(0), nuwlsExternalTimeLimit(0), satlikeMode(0), satlikeInvsThr(0), satlikeTimeThr(15), satlikeInitTimeThr(5), satlikePreInitTimeThr(1), satlikePreInitMaxClss(10000000), satlikeMaxFlips(10000000), satlikeMaxNonImproveFlip(10000000), satlikeMaxFlipsReduceBeyondClsNum(0), satlikeReinvokeTimeThr(60), satlikeMimicMse21(0), satlikeReinvokeMult(1.),
+	totProp0s(0), totBuildLayered(0),
 	msSatInvToReinvoke(0), msSatInvToReinvokeMult(1), msReinvokeMultThr(1.), initMsMaxEpochs(-1), msReinvokeMultThrMin(0.001),
-	msVerbosity(1) {};  // Private so that it can  not be called
+	msVerbosity(1), skipFillingSolverPolarity(false) {};  // Private so that it can  not be called
    static Torc* m_pInstance;
    
    std::chrono::high_resolution_clock::time_point timeStart;

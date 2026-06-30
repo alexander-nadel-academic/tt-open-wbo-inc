@@ -79,11 +79,11 @@ void Adder::adderTree (Solver *S, std::vector< std::queue< Lit > > & buckets, ve
   Lit x,y,z;
   Lit u = lit_Undef;
 
-  for ( int i = 0; i < buckets.size(); i++ ) {
+  for ( int i = 0; i < (int)buckets.size(); i++ ) {
       if ( buckets[i].size() == 0 )
     continue;
 
-      if ( i == buckets.size() - 1 && buckets[i].size() >= 2 ) {
+      if ( i == (int)buckets.size() - 1 && buckets[i].size() >= 2 ) {
     buckets.push_back ( std::queue<Lit>() );
     result.push ( u );
     }
@@ -122,18 +122,18 @@ void Adder::adderTree (Solver *S, std::vector< std::queue< Lit > > & buckets, ve
 // xs and ys must have the same size
 
 void Adder::lessThanOrEqual (Solver *S, vec< Lit > & xs, std::vector< uint64_t > & ys) {
-  assert ( xs.size() == ys.size() );
+  assert ( (size_t)xs.size() == ys.size() );
   vec<Lit> clause;
   bool skip;
-  for ( int i = 0; i < xs.size(); ++i ) {
+  for ( int i = 0; i < (int)xs.size(); ++i ) {
       if ( ys[i] == 1 || xs[i] == lit_Undef )
     continue;
-      
+
       clause.clear();
 
       skip = false;
 
-      for ( int j = i + 1; j < xs.size(); ++j )
+      for ( int j = i + 1; j < (int)xs.size(); ++j )
       {
     if ( ys[j] == 1 )
     {
@@ -168,10 +168,10 @@ void Adder::lessThanOrEqual (Solver *S, vec< Lit > & xs, std::vector< uint64_t >
 }
 
 void Adder::lessThanOrEqualInc (Solver *S, vec< Lit > & xs, std::vector< uint64_t > & ys, vec<Lit>& assumptions) {
-  assert ( xs.size() == ys.size() );
+  assert ( (size_t)xs.size() == ys.size() );
   vec<Lit> clause;
   bool skip;
-  for ( int i = 0; i < xs.size(); ++i ) {
+  for ( int i = 0; i < (int)xs.size(); ++i ) {
       if ( ys[i] == 1 || xs[i] == lit_Undef )
     continue;
       
@@ -179,7 +179,7 @@ void Adder::lessThanOrEqualInc (Solver *S, vec< Lit > & xs, std::vector< uint64_
 
       skip = false;
 
-      for ( int j = i + 1; j < xs.size(); ++j )
+      for ( int j = i + 1; j < (int)xs.size(); ++j )
       {
     if ( ys[j] == 1 )
     {
@@ -222,7 +222,7 @@ void Adder::numToBits ( std::vector<uint64_t> & bits, uint64_t n, uint64_t numbe
   
   for ( int64_t i = n - 1; i >= 0; --i ) {
       int64_t tmp = ((int64_t)1) << i;
-      if ( number < tmp ) {
+      if ( (int64_t)number < tmp ) {
     bits.push_back ( 0 );
     }
       else {
@@ -241,7 +241,7 @@ void Adder::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rh
     uint64_t nb = ld64(rhs); // number of bits
     Lit u = lit_Undef;
 
-    for ( int iBit = 0; iBit < nb; ++iBit ) {
+    for ( int iBit = 0; iBit < (int)nb; ++iBit ) {
         _buckets.push_back ( std::queue<Lit>() );
         _output.push ( u );
         for ( int iVar = 0; iVar < lits.size(); ++iVar ) {
@@ -253,7 +253,7 @@ void Adder::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rh
     std::vector<uint64_t> kBits;
 
     adderTree (S, _buckets, _output);
-  
+
     numToBits (kBits, _buckets.size(), rhs );
 
     lessThanOrEqual (S, _output, kBits);
@@ -266,7 +266,7 @@ void Adder::encodeInc(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t
     uint64_t nb = ld64(rhs); // number of bits
     Lit u = lit_Undef;
 
-    for ( int iBit = 0; iBit < nb; ++iBit ) {
+    for ( int iBit = 0; iBit < (int)nb; ++iBit ) {
         _buckets.push_back ( std::queue<Lit>() );
         _output.push ( u );
         for ( int iVar = 0; iVar < lits.size(); ++iVar ) {

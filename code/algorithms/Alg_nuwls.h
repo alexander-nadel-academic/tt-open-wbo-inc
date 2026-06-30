@@ -283,7 +283,7 @@ inline void NUWLS::settings()
             coe_tuned_weight = 1.0 / (double(top_clause_weight - 1) / (double)(num_sclauses));
             for (int c = 0; c < num_clauses; c++)
             {
-                if (org_clause_weight[c] != top_clause_weight)
+                if ((unsigned long long)org_clause_weight[c] != top_clause_weight)
                 {
                     tuned_org_clause_weight[c] = (double)org_clause_weight[c] * coe_tuned_weight;
                 }
@@ -505,11 +505,6 @@ inline void NUWLS::build_instance(char *filename)
 
 inline void NUWLS::build_instance(int numVars, int numClauses, unsigned long long topClauseweight, clauselit **nuwls_clause, int *nuwls_clause_lit_count, long long *nuwls_clause_weight)
 {
-    istringstream iss;
-    string line;
-    char tempstr1[10];
-    char tempstr2[10];
-
     /*** build problem data structures of the instance ***/
     start_timing();
     total_soft_length = 0;
@@ -521,9 +516,8 @@ inline void NUWLS::build_instance(int numVars, int numClauses, unsigned long lon
     org_clause_weight = nuwls_clause_weight;
 
     allocate_memory();
-    int v, c;
+    int v;
 
-    int cur_lit;
     partial = 0;
     num_hclauses = num_sclauses = 0;
     max_clause_length = 0;
@@ -532,7 +526,6 @@ inline void NUWLS::build_instance(int numVars, int numClauses, unsigned long lon
     // int *redunt_test = new int[num_vars + 1];
     // memset(redunt_test, 0, sizeof(int) * num_vars + 1);
     // Now, read the clauses, one at a time.
-    bool clause_reduent = false;
     long long total_lit_count = 0;
     for (int i = 0; i < num_clauses; ++i)
     {
@@ -543,7 +536,7 @@ inline void NUWLS::build_instance(int numVars, int numClauses, unsigned long lon
             var_lit_count[clause_lit[i][j].var_num]++;
         }
 
-        if (org_clause_weight[i] != top_clause_weight)
+        if ((unsigned long long)org_clause_weight[i] != top_clause_weight)
         {
             total_soft_weight += org_clause_weight[i];
             // total_soft_length += clause_lit_count[i];
@@ -559,7 +552,6 @@ inline void NUWLS::build_instance(int numVars, int numClauses, unsigned long lon
         total_lit_count += clause_lit_count[i];
     }
 
-    double total_memory = 0;
     // creat var literal arrays
     total_lit_count = 0;
     for (v = 1; v <= num_vars; ++v)
@@ -617,7 +609,7 @@ inline void NUWLS::init(vector<int> &init_solution)
             {
                 already_in_soft_large_weight_stack[c] = 0;
 
-                if (org_clause_weight[c] == top_clause_weight)
+                if ((unsigned long long)org_clause_weight[c] == top_clause_weight)
                     clause_weight[c] = 1;
                 else
                 {
@@ -1256,8 +1248,6 @@ inline void NUWLS::update_goodvarstack2(int flipvar)
 inline void NUWLS::flip(int flipvar)
 {
     int i, v, c, clen = 0;
-    int index;
-    clauselit *clause_c;
     score_change_stack_fill_pointer = 0;
     double org_flipvar_score = score[flipvar];
     // cout << "c org_flipvar_score: " <<org_flipvar_score << endl;
@@ -1266,7 +1256,6 @@ inline void NUWLS::flip(int flipvar)
     for (i = 0; i < var_lit_count[flipvar]; ++i)
     {
         c = var_lit[flipvar][i].clause_num;
-        clause_c = clause_lit[c];
 
         if (cur_soln[flipvar] == var_lit[flipvar][i].sense)
         {
@@ -1361,7 +1350,6 @@ inline void NUWLS::flip(int flipvar)
 inline void NUWLS::flip2(int flipvar)
 {
     int i, v, c;
-    int index;
     clauselit *clause_c;
 
     score_change_stack_fill_pointer = 0;
@@ -1455,7 +1443,7 @@ inline bool NUWLS::verify_sol()
         }
         if (flag == 0)
         {
-            if (org_clause_weight[c] == top_clause_weight) // verify hard clauses
+            if ((unsigned long long)org_clause_weight[c] == top_clause_weight) // verify hard clauses
             {
                 // output the clause unsatisfied by the solution
                 cout << "c Error: hard clause " << c << " is not satisfied" << endl;
@@ -1481,7 +1469,7 @@ inline bool NUWLS::verify_sol()
         }
     }
 
-    if (verify_unsat_weight == opt_unsat_weight)
+    if ((unsigned long long)verify_unsat_weight == opt_unsat_weight)
     {
         cout << "c yes " << verify_unsat_weight << endl;
     }
@@ -1537,7 +1525,7 @@ inline void NUWLS::simple_print()
 
 inline void NUWLS::unsat(int clause)
 {
-    if (org_clause_weight[clause] == top_clause_weight)
+    if ((unsigned long long)org_clause_weight[clause] == top_clause_weight)
     {
         index_in_hardunsat_stack[clause] = hardunsat_stack_fill_pointer;
         mypush(clause, hardunsat_stack);
@@ -1555,7 +1543,7 @@ inline void NUWLS::sat(int clause)
 {
     int index, last_unsat_clause;
 
-    if (org_clause_weight[clause] == top_clause_weight)
+    if ((unsigned long long)org_clause_weight[clause] == top_clause_weight)
     {
         last_unsat_clause = mypop(hardunsat_stack);
         index = index_in_hardunsat_stack[clause];

@@ -30,7 +30,8 @@
 #include <cstdlib>
 #include <ctime>     
 #include <vector>
-#include <algorithm> 
+#include <algorithm>
+#include <random>
 #include <iostream> 
 #include "../encodings/Enc_Totalizer.h"
 
@@ -144,16 +145,16 @@ uint64_t OBV::MrsBeaver(Solver * solver, int iterations, int conflicts){
     current_ub = new_current_ub;
     
     // Create totalizer layers, when required
-    if (Torc::Instance()->GetPartialSumFailItersToSwitch() != 0 && mrsBeaverFailedSubsequentIters >= Torc::Instance()->GetPartialSumFailItersToSwitch() && !totInitialized) 
+    if (Torc::Instance()->GetPartialSumFailItersToSwitch() != 0 && mrsBeaverFailedSubsequentIters >= (unsigned)Torc::Instance()->GetPartialSumFailItersToSwitch() && !totInitialized)
     {
 		 totSelector = mkLit(solver->nVars(), false);
          newSATVariable(solver);
   	     tot.LyInit(solver, objFunction, current_ub, totSelector);		 
 		 
-		 while (outputsPerLayer.size() < Torc::Instance()->GetPartialSumLayersThr() && tot.LyGenNextLayerRetTrueIfNewLayer())
+		 while ((int)outputsPerLayer.size() < Torc::Instance()->GetPartialSumLayersThr() && tot.LyGenNextLayerRetTrueIfNewLayer())
 		 {
 			 outputsPerLayer.push_back(vector<Lit>());
-			 printf("c Partial sum inside: created layer number %u\n", outputsPerLayer.size());
+			 printf("c Partial sum inside: created layer number %zu\n", outputsPerLayer.size());
 			 const vector<vector<Lit>>& currLayer = tot.LyGetLastLayer();		  
 			 
 			 for (const vector<Lit>& currNode : currLayer)
@@ -182,12 +183,12 @@ uint64_t OBV::MrsBeaver(Solver * solver, int iterations, int conflicts){
 				auto new_current_ub = t % 4 == 0 || t % 4 == 1 ? ums_obv_bs(solver, currOutputs, current_ub, Torc::Instance()->GetPartialSumConflicts(), ~totSelector) : obv_bs(solver, currOutputs, current_ub, Torc::Instance()->GetPartialSumConflicts(), ~totSelector);    
 				
 				current_ub = new_current_ub;
-				t % 4 == 0 && t > 0 ? std::random_shuffle(currOutputs.begin(), currOutputs.end()) : std::reverse(currOutputs.begin(), currOutputs.end());   
+				t % 4 == 0 && t > 0 ? std::shuffle(currOutputs.begin(), currOutputs.end(), std::mt19937{std::random_device{}()}) : std::reverse(currOutputs.begin(), currOutputs.end());
 		 }
-	 } 
-	 
-    
-	t % 4 == 0 && t > 0 ? std::random_shuffle(outputs.begin(), outputs.end()) : std::reverse(outputs.begin(), outputs.end());    
+	 }
+
+
+	t % 4 == 0 && t > 0 ? std::shuffle(outputs.begin(), outputs.end(), std::mt19937{std::random_device{}()}) : std::reverse(outputs.begin(), outputs.end());
   }
   
   solver->budgetOff();
@@ -218,7 +219,7 @@ uint64_t OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub, in
   uint64_t last_ub = ub;  
   uint64_t badOutputs = 0;
   
-  for (int i =0; i < outputs.size(); i++){
+  for (size_t i =0; i < outputs.size(); i++){
     const bool skipPolosat = Torc::Instance()->GetMsMaxEpochs() == 0;
     if (var(outputs[i]) < current_model.size() && current_model[var(outputs[i])] == l_False){
       assumptions.push(~outputs[i]);
@@ -237,7 +238,7 @@ uint64_t OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub, in
 	  else
 	  {
 		  vec<Lit> remOuts;
-		  for (int j = i+1; j < outputs.size(); ++j)
+		  for (size_t j = i+1; j < outputs.size(); ++j)
 		  {
 			  remOuts.push(outputs[j]);
 		  }
@@ -291,11 +292,11 @@ uint64_t OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub
   const int verbosity = Torc::Instance()->GetMsVerbosity();
   
   std::vector<Lit> outputs_mod;
-  for (int i = 0; i < outputs.size(); i++){
+  for (size_t i = 0; i < outputs.size(); i++){
     outputs_mod.push_back(outputs[i]);
   }
 
-  for (int i =0; i < outputs_mod.size(); i++){
+  for (size_t i =0; i < outputs_mod.size(); i++){
 	const bool skipPolosat = Torc::Instance()->GetMsMaxEpochs() == 0;
     if (var(outputs_mod[i]) < current_model.size() && current_model[var(outputs_mod[i])] == l_False){
       assumptions.push(~outputs_mod[i]);
@@ -314,19 +315,19 @@ uint64_t OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub
 	  else
 	  {
 		  vec<Lit> remOuts;
-		  for (int j = i+1; j < outputs.size(); ++j)
+		  for (size_t j = i+1; j < outputs.size(); ++j)
 		  {
 			  remOuts.push(outputs_mod[j]);
 		  }
 		  res = polosat(solver, current_assumptions, remOuts);
 	  }
-	  
-      solver->budgetOffConflict2();          
-	
+
+      solver->budgetOffConflict2();
+
       // move bits
       if (res == l_True){
-        int k = i+1;
-        for (int j = i+1; j < outputs_mod.size(); j++){
+        size_t k = i+1;
+        for (size_t j = i+1; j < outputs_mod.size(); j++){
           if (solver->model[var(outputs_mod[j])] == l_False){
             if (k!=j){
               Lit a = outputs_mod[k];

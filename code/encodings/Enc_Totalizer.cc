@@ -295,7 +295,7 @@ void Totalizer::build(Solver *S, vec<Lit> &lits, int64_t rhs) {
     return;
   }
   
-  if (!(rhs >= 1 && rhs <= lits.size())) printf("c totalizer-build rhs = %d; lits.size()=%d\n", rhs, lits.size());
+  if (!(rhs >= 1 && rhs <= lits.size())) printf("c totalizer-build rhs = %lld; lits.size()=%d\n", (long long)rhs, lits.size());
   assert(rhs >= 1 && rhs <= lits.size());
 
   if (incremental_strategy == _INCREMENTAL_NONE_ && rhs == lits.size()) {
@@ -374,7 +374,7 @@ void Totalizer::LyInit(Solver *S, vec<Lit> &lits, int64_t rhs, Lit blockingI)
 		
 	if (Torc::Instance()->GetMsVerbosity() >= 2)
 	{
-		printf("c layered-totalizer-initialized: rhs = %d; lits.size()=%d\n", rhs, lits.size());
+		printf("c layered-totalizer-initialized: rhs = %lld; lits.size()=%d\n", (long long)rhs, lits.size());
 	}
 }
 
@@ -388,10 +388,10 @@ bool Totalizer::LyGenNextLayerRetTrueIfNewLayer()
 		const bool isOldLayerEven = (oldLastLayer.size() & 1) == 0;
 		lyLastLayer.resize(isOldLayerEven ? oldLastLayer.size()/2 : oldLastLayer.size()/2+1);
 				
-		for (int i = 0; i < oldLastLayer.size(); i+=2)
+		for (int i = 0; i < (int)oldLastLayer.size(); i+=2)
 		{
 			const int newInd = i/2;
-			if (i == oldLastLayer.size() - 1)
+			if (i == (int)oldLastLayer.size() - 1)
 			{
 				lyLastLayer[newInd] = oldLastLayer[i];
 			}
@@ -412,7 +412,7 @@ bool Totalizer::LyGenNextLayerRetTrueIfNewLayer()
 				
 		if (Torc::Instance()->GetMsVerbosity() >= 3)
 		{
-			printf("c layered-totalizer: layer %u of size %u completed\n", lyLayersNum, lyLastLayer.size());
+			printf("c layered-totalizer: layer %u of size %zu completed\n", lyLayersNum, lyLastLayer.size());
 		}
 		
 		return true;

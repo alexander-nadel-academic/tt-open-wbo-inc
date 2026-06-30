@@ -215,7 +215,7 @@ void test_encoding_join()
 			for (int i=0; i<weights_vec2.size(); i++) {
 				std::cout << weights_vec2[i] << " " << i+1 << " 0" << std::endl;
 			}
-			for (int i=0; i<num_unit_clauses; i++) {
+			for (unsigned i=0; i<num_unit_clauses; i++) {
 				std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
 			}
 			std::cout << "c DONE" << std::endl;
@@ -239,7 +239,7 @@ void test_encoding_join()
 			for (int i=0; i<weights_vec2.size(); i++) {
 				std::cout << weights_vec2[i] << " " << i+1 << " 0" << std::endl;
 			}
-			for (int i=0; i<num_unit_clauses; i++) {
+			for (unsigned i=0; i<num_unit_clauses; i++) {
 				std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
 			}
 			std::cout << "c DONE" << std::endl;
@@ -370,7 +370,7 @@ void test_encoding()
 	std::uniform_int_distribution<unsigned> dis_num_inc(1, 100);
 	unsigned num_inc = dis_num_inc(g);
 	
-	for (int k=0; k < num_inc; k++) {
+	for (unsigned k=0; k < num_inc; k++) {
 		std::cout << "RHS : " << rhs << std::endl;
 		// Update RHS and solve
 		gte.update(s, rhs, assumptions);
@@ -391,7 +391,7 @@ void test_encoding()
 				for (int i=0; i<weights_vec.size(); i++) {
 					std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
 				}
-				for (int i=0; i<num_unit_clauses; i++) {
+				for (unsigned i=0; i<num_unit_clauses; i++) {
 					std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
 				}
 				std::cout << "c DONE" << std::endl;
@@ -410,7 +410,7 @@ void test_encoding()
 				for (int i=0; i<weights_vec.size(); i++) {
 					std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
 				}
-				for (int i=0; i<num_unit_clauses; i++) {
+				for (unsigned i=0; i<num_unit_clauses; i++) {
 					std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
 				}
 				std::cout << "c DONE" << std::endl;

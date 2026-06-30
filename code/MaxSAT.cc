@@ -478,7 +478,7 @@ lbool MaxSAT::polosat(Solver *solver, vec<Lit> &assumptions, vec<Lit> &obsVecLit
 	   vector<Lit> remainingRelLits;
 	   remainingRelLits.reserve(maxsat_formula->nSoft());
 	   
-		for (int i = 0; i < observables.size(); ++i)
+		for (size_t i = 0; i < observables.size(); ++i)
 		{
 			auto relLit = observables[i];
 		   // Assert the relaxation literal is positive
@@ -487,12 +487,12 @@ lbool MaxSAT::polosat(Solver *solver, vec<Lit> &assumptions, vec<Lit> &obsVecLit
 		   bool isSoftClsFalsified = startingModel[var(relLit)] == l_True;
 		   if (isSoftClsFalsified)
 		   {
-			   remainingRelLits.push_back(relLit);				   
-		   }				   
+			   remainingRelLits.push_back(relLit);
+		   }
 		}
 
 	   
-	   if (verbosity > 2 || (verbosity > 1 && iEpoch > 0)) printf("c Polosat: epoch %d < %d starting with %u remaining literals\n", iEpoch, Torc::Instance()->GetMsMaxEpochs(), remainingRelLits.size());
+	   if (verbosity > 2 || (verbosity > 1 && iEpoch > 0)) printf("c Polosat: epoch %d < %d starting with %zu remaining literals\n", iEpoch, Torc::Instance()->GetMsMaxEpochs(), remainingRelLits.size());
 	   
 	   int statSat = 0;
 	   int statUnsat = 0;
@@ -508,7 +508,7 @@ lbool MaxSAT::polosat(Solver *solver, vec<Lit> &assumptions, vec<Lit> &obsVecLit
 		   assert((sign(relLit) == false && startingModel[var(relLit)] == l_True));
 						   
 		   solver->setConfBudget(Torc::Instance()->GetMsConflictsPerSatCall());
-		   if (verbosity > 2) printf("c Calling SAT for %d time with %u relaxation variables remaining and %d assumptions\n", satInvocationsPerEpoch, remainingRelLits.size(), assumptions.size());
+		   if (verbosity > 2) printf("c Calling SAT for %d time with %zu relaxation variables remaining and %d assumptions\n", satInvocationsPerEpoch, remainingRelLits.size(), assumptions.size());
 		   
 		   if ((msObvStrat > 0 && msObvStrat <= 5) || msObvStrat == 10)
 		   {
@@ -524,15 +524,15 @@ lbool MaxSAT::polosat(Solver *solver, vec<Lit> &assumptions, vec<Lit> &obsVecLit
 			   
 			   if (msObvStrat > 3)
 			   {
-				   for (unsigned i = moUncheckedObsInd - 1; i != -1; --i)
+				   for (unsigned i = moUncheckedObsInd - 1; i != (unsigned)-1; --i)
 				   {
 					   const Lit& obvLit = observables[i];
 					    // The literal must be positive
 					   assert(sign(obvLit) == false);
-					   assumptions.push(model[var(obvLit)] == l_True ? obvLit : ~obvLit); 
+					   assumptions.push(model[var(obvLit)] == l_True ? obvLit : ~obvLit);
 				   }
 			   }
-			   
+
 			   if (litsNumToSwitch > 0)
 			   {
 				   auto assumpsRange = assumptions.size() - initAssumpsNum;
@@ -556,7 +556,7 @@ lbool MaxSAT::polosat(Solver *solver, vec<Lit> &assumptions, vec<Lit> &obsVecLit
 		   
 		   if ((msObvStrat > 3 && msObvStrat <= 5) || msObvStrat == 10)
 		   {
-			   for (unsigned i = moUncheckedObsInd - 1; i != -1; --i)
+			   for (unsigned i = moUncheckedObsInd - 1; i != (unsigned)-1; --i)
 			   {
 				   assumptions.pop(); 
 			   }
@@ -574,7 +574,7 @@ lbool MaxSAT::polosat(Solver *solver, vec<Lit> &assumptions, vec<Lit> &obsVecLit
 			   assumptions.resize(initAssumpsNum);
 			   
 			   assumptions.push(~relLit); 
-			   if (verbosity > 2) printf("c OBV strategy calling SAT for %d time with %u relaxation variables remaining and %d assumptions\n", satInvocationsPerEpoch, remainingRelLits.size(), assumptions.size());
+			   if (verbosity > 2) printf("c OBV strategy calling SAT for %d time with %zu relaxation variables remaining and %d assumptions\n", satInvocationsPerEpoch, remainingRelLits.size(), assumptions.size());
 			   currRes = searchSATSolver(solver, assumptions);				   
 			   
 			   savedAssumps.moveTo(assumptions);	
@@ -602,7 +602,7 @@ lbool MaxSAT::polosat(Solver *solver, vec<Lit> &assumptions, vec<Lit> &obsVecLit
 				   
 				  if (msObvStrat >= 8 && msObvStrat <= 9)
 				  {
-					  for (unsigned i = moUncheckedObsInd - 1; i != -1; --i)
+					  for (unsigned i = moUncheckedObsInd - 1; i != (unsigned)-1; --i)
 					  {
 					      const Lit& obvLit = observables[i];
 						  // The literal must be positive
@@ -612,8 +612,8 @@ lbool MaxSAT::polosat(Solver *solver, vec<Lit> &assumptions, vec<Lit> &obsVecLit
 				  }
 				  
 				  assumptions.push(~relLit); 	
-				  if (verbosity > 2) printf("c Post-OBV strategy calling SAT for %d time with %u relaxation variables remaining and %d assumptions\n", satInvocationsPerEpoch, remainingRelLits.size(), assumptions.size());	   
-  			      auto currRes = searchSATSolver(solver, assumptions);		   
+				  if (verbosity > 2) printf("c Post-OBV strategy calling SAT for %d time with %zu relaxation variables remaining and %d assumptions\n", satInvocationsPerEpoch, remainingRelLits.size(), assumptions.size());
+  			      searchSATSolver(solver, assumptions);		   
 				  savedAssumps.moveTo(assumptions);	
 			   
 			      ++satInvocationsPerEpoch;	
@@ -804,8 +804,8 @@ lbool MaxSAT::polosat(Solver *solver, vec<Lit> &assumptions, vec<Lit> &obsVecLit
 	} else if (StopDueToPropPerModelThr())
 	{
 		statInitSatlikePolosatStr += "PolosatStoppedForeverP 1 ";
-	   if (verbosity > 1) printf("c Stopping Polosat forever due to low propagation-per-model threshold. Models = %u; propagations passed = %d; Propagations-per-model = %f > user-threshold = %f; Stopping test number %u\n", 
-			improvingModelsSoFar, solver->propagations - poloStartProp, (double)(solver->propagations - poloStartProp) / (double)improvingModelsSoFar, Torc::Instance()->GetMsPropPerModelThr(), stopDueToCount);
+	   if (verbosity > 1) printf("c Stopping Polosat forever due to low propagation-per-model threshold. Models = %u; propagations passed = %llu; Propagations-per-model = %f > user-threshold = %f; Stopping test number %u\n",
+			improvingModelsSoFar, (unsigned long long)(solver->propagations - poloStartProp), (double)(solver->propagations - poloStartProp) / (double)improvingModelsSoFar, Torc::Instance()->GetMsPropPerModelThr(), stopDueToCount);
 	   Torc::Instance()->SetMsMaxEpochs(0);
 	}
 	else
@@ -857,7 +857,7 @@ lbool MaxSAT::searchSATSolver(Solver *S, vec<Lit> &assumptions, bool pre) {
 	if (verbosity > 3) 
 	{
 		printf("c Calling SAT with the following %d assumptions:", assumptions.size());
-		for (int i = 0; i < assumptions.size(); ++i) printf(" %d", assumptions[i]);
+		for (int i = 0; i < assumptions.size(); ++i) printf(" %d", assumptions[i].x);
 		printf("\n");
 	}	
 

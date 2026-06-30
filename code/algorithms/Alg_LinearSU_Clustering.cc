@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <random>
 
 #define MAX_CLAUSES 3000000
 
@@ -252,10 +253,6 @@ void LinearSUClustering::bmoSearch(){
 		BumpTargets(objFunction, coeffs, solver);
 	}
 	
-  uint64_t currentWeight = orderWeights[0];
-  uint64_t minWeight = orderWeights[orderWeights.size() - 1];
-  int posWeight = 0;
-
   vec<vec<Lit>> functions;
   vec<uint64_t> rhs;
   vec<uint64_t> ub_rhs;
@@ -292,10 +289,9 @@ void LinearSUClustering::bmoSearch(){
 
   int current_function_id = 0;
   vec<Lit> assumptions;
-  if (verbosity > 2) printf("c objective function %d out of %d\n",current_function_id,orderWeights.size());
+  if (verbosity > 2) printf("c objective function %d out of %zu\n",current_function_id,orderWeights.size());
 
   bool repair = false;
-  int repair_lvl = 0;
 
   vec<Lit> pb_function;
   vec<uint64_t> pb_coeffs;  
@@ -317,12 +313,11 @@ void LinearSUClustering::bmoSearch(){
 	};
 	   
 	auto ObvBs = [&](uint64_t& newCost)
-    {		
+    {
 		 const bool isModelPerSecThrApplied = Torc::Instance()->GetMsModelPerSecThr() != 0.;
-		 const bool isPropPerModelThrApplied = Torc::Instance()->GetMsPropPerModelThr() != 0;
 		 unsigned improvingModelsSoFar = 0;
 		 std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-		 
+
 		  if (verbosity > 1) printf("c Entered OBV-BS\n");
 		  vector<Lit> outputs;
 		   outputs.reserve(maxsat_formula->nSoft());
@@ -330,10 +325,9 @@ void LinearSUClustering::bmoSearch(){
 		   weightPerOutput.reserve(maxsat_formula->nSoft());
 		   uint64_t overallWeight = 0;
 		   uint64_t badWeight = 0;
-		   
-		   for (int iCurrFuncId = current_function_id; iCurrFuncId <= functions.size() - 1; ++iCurrFuncId)
+
+		   for (int iCurrFuncId = current_function_id; iCurrFuncId <= (int)functions.size() - 1; ++iCurrFuncId)
 		   {
-			   size_t szBefore = outputs.size();
 			   for (int iRelVar = 0; iRelVar <= functions[iCurrFuncId].size() - 1; ++iRelVar)
 			   {
 				   outputs.push_back(functions[iCurrFuncId][iRelVar]);	
@@ -348,7 +342,7 @@ void LinearSUClustering::bmoSearch(){
 		  vec<Lit> stored_assumptions;
 		  assumptions.copyTo(stored_assumptions);
 			
-		  for (int i =0; i < outputs.size(); i++){
+		  for (size_t i =0; i < outputs.size(); i++){
 			if (current_model[var(outputs[i])] == l_False){
 			  assumptions.push(~outputs[i]);
 			} else {
@@ -446,8 +440,7 @@ void LinearSUClustering::bmoSearch(){
 	   }		  		   
 	   
 	   vec<lbool> startingModel;
-	   best_model.copyTo(startingModel);		
-	   uint64_t startingModelCost = best_cost;
+	   best_model.copyTo(startingModel);
 	   if (Torc::Instance()->GetMsSortLitsStrat() >= 2 && mutLitsScores.empty())
 	   {
 		   mutLitsScores.resize(best_model.size(), 0);
@@ -468,7 +461,7 @@ void LinearSUClustering::bmoSearch(){
 		   }
 		   if (Torc::Instance()->GetMsSortLitsStrat() >= 1)
 		   {
-				std::random_shuffle(relLitsSortedIncreasing.begin() + szBefore, relLitsSortedIncreasing.end());   
+				std::shuffle(relLitsSortedIncreasing.begin() + szBefore, relLitsSortedIncreasing.end(), std::mt19937{std::random_device{}()});
 				
 				if (Torc::Instance()->GetMsSortLitsStrat() == 2)
 				{
@@ -525,7 +518,7 @@ void LinearSUClustering::bmoSearch(){
 			   remainingRelLits = crossEpochBadLits;
 		   }
 		   
-		   if (verbosity > 1) printf("c Mutation sampling: epoch %d < %d starting with %u remaining literals\n", iEpoch, Torc::Instance()->GetMsMaxEpochs(), remainingRelLits.size());
+		   if (verbosity > 1) printf("c Mutation sampling: epoch %d < %d starting with %zu remaining literals\n", iEpoch, Torc::Instance()->GetMsMaxEpochs(), remainingRelLits.size());
 		   
 		   int statSat = 0;
 		   int statUnsat = 0;
@@ -541,7 +534,7 @@ void LinearSUClustering::bmoSearch(){
 			   assert((sign(relLit) == false && startingModel[var(relLit)] == l_True));
 							   
 			   solver->setConfBudget(Torc::Instance()->GetMsConflictsPerSatCall());
-			   if (verbosity > 2) printf("c Calling SAT for %d time (out of %d allowed in one epoch) with %u relaxation variables remaining\n", satInvocationsPerEpoch, Torc::Instance()->GetMsSatCallsPerEpoch(), remainingRelLits.size());
+			   if (verbosity > 2) printf("c Calling SAT for %d time (out of %d allowed in one epoch) with %zu relaxation variables remaining\n", satInvocationsPerEpoch, Torc::Instance()->GetMsSatCallsPerEpoch(), remainingRelLits.size());
 			   
 			   if (Torc::Instance()->GetMsStayNearStartingModel())
 			   {
@@ -563,7 +556,7 @@ void LinearSUClustering::bmoSearch(){
 				   
 				   if (msObvStrat > 3)
 				   {
-					   for (unsigned i = moUncheckedRelLitsInd - 1; i != -1; --i)
+					   for (unsigned i = moUncheckedRelLitsInd - 1; i != (unsigned)-1; --i)
 					   {
 						   const Lit& obvLit = relLitsSortedIncreasing[i];
 							// The literal must be positive
@@ -579,7 +572,7 @@ void LinearSUClustering::bmoSearch(){
 			   
   	           if ((msObvStrat > 3 && msObvStrat <= 5) || msObvStrat == 10)
 			   {
-				   for (unsigned i = moUncheckedRelLitsInd - 1; i != -1; --i)
+				   for (unsigned i = moUncheckedRelLitsInd - 1; i != (unsigned)-1; --i)
 				   {
 					   assumptions.pop(); 
 				   }
@@ -617,7 +610,7 @@ void LinearSUClustering::bmoSearch(){
 				   
 				  if (msObvStrat >= 8 && msObvStrat <= 9)
 				  {
-					  for (unsigned i = moUncheckedRelLitsInd - 1; i != -1; --i)
+					  for (unsigned i = moUncheckedRelLitsInd - 1; i != (unsigned)-1; --i)
 					  {
 					      const Lit& obvLit = relLitsSortedIncreasing[i];
 						  // The literal must be positive
@@ -627,10 +620,10 @@ void LinearSUClustering::bmoSearch(){
 				  }
 				  
 				  assumptions.push(~relLit); 	
-				  auto currRes = searchSATSolver(solver, assumptions);		   
-				  savedAssumps.moveTo(assumptions);	
-			   
-			      ++satInvocationsPerEpoch;	
+				  searchSATSolver(solver, assumptions);
+				  savedAssumps.moveTo(assumptions);
+
+			      ++satInvocationsPerEpoch;
 			   }
 			   		   
 			   
@@ -810,8 +803,7 @@ void LinearSUClustering::bmoSearch(){
 		   if (goodEpoch)
 		   {
 			   startingModel.clear();
-			   best_model.copyTo(startingModel);		
-			   startingModelCost = best_cost;
+			   best_model.copyTo(startingModel);
 			   solver->_user_phase_saving.clear();
 				for (int i = 0; i < best_model.size(); i++){
 					solver->_user_phase_saving.push(best_model[i]);		
@@ -828,8 +820,8 @@ void LinearSUClustering::bmoSearch(){
 	   
 	  if (StopDueToPropPerModelThr(isPropPerModelThrApplied, improvingModelsSoFar, startProp))
 	  {
-		   if (verbosity > 1) printf("c Stopping mutation-optimization forever due to low propagation-per-model threshold. Models = %u; Propagations passed = %d; Propagations-per-model = %f > user-threshold = %f\n", 
-			improvingModelsSoFar, solver->propagations - startProp,  (double)(solver->propagations - startProp) / (double)improvingModelsSoFar, Torc::Instance()->GetMsPropPerModelThr());
+		   if (verbosity > 1) printf("c Stopping mutation-optimization forever due to low propagation-per-model threshold. Models = %u; Propagations passed = %llu; Propagations-per-model = %f > user-threshold = %f\n",
+			improvingModelsSoFar, (unsigned long long)(solver->propagations - startProp), (double)(solver->propagations - startProp) / (double)improvingModelsSoFar, Torc::Instance()->GetMsPropPerModelThr());
 		   Torc::Instance()->SetMsMaxEpochs(0);	  				  
 	  }
 
@@ -997,7 +989,7 @@ void LinearSUClustering::bmoSearch(){
                 encodingAssumptions.push(~functions[current_function_id][i]);
               }
             } else {
-			  if (verbosity > 2) printf("c creating encoder with id = %d and value = %d\n",current_function_id,rhs[current_function_id]);
+			  if (verbosity > 2) printf("c creating encoder with id = %d and value = %llu\n",current_function_id,(unsigned long long)rhs[current_function_id]);
               encoders[current_function_id]->buildCardinality(solver, functions[current_function_id], newCost-1);
               if (encoders[current_function_id]->hasCardEncoding()){
                 encoder_created[current_function_id] = true;
@@ -1050,11 +1042,10 @@ void LinearSUClustering::bmoSearch(){
           repair_cost -= 1;
         }
 
-        rescale:
   // rescale
         for (int i = 0; i < rhs.size(); i++){
           uint64_t value = repair_cost/orderWeights[i];
-          if (value > functions[i].size())
+          if (value > (uint64_t)functions[i].size())
             value = functions[i].size();
           if (value != ub_rhs[i]){
             ub_rhs[i] = value;
@@ -1075,7 +1066,7 @@ void LinearSUClustering::bmoSearch(){
                 for (int j = 0; j < functions[i].size(); j++){
                   functions_to_assumptions[i].push(~functions[i][j]);
                 }
-              } else if (functions[i].size() != ub_rhs[i]){
+              } else if ((uint64_t)functions[i].size() != ub_rhs[i]){
     //printf("encoding %lu\n",ub_rhs[i]);
                 encoders[i]->incUpdateCardinality(solver, functions[i], ub_rhs[i], encodingAssumptions);
     //printf("encodingAssumptions.size() = %d\n",encodingAssumptions.size());
@@ -1112,7 +1103,7 @@ void LinearSUClustering::bmoSearch(){
     } else {
       unsat:
       //printf("c UNSATISFIABLE\n");
-      if (current_function_id == orderWeights.size()-1){
+      if ((size_t)current_function_id == orderWeights.size()-1){
   // last function
 
         if (!complete){
@@ -1154,7 +1145,7 @@ void LinearSUClustering::bmoSearch(){
     // rescale
           for (int i = 0; i < rhs.size(); i++){
             ub_rhs[i] = repair_cost/orderWeights[i];
-            if (ub_rhs[i] > functions[i].size())
+            if (ub_rhs[i] > (uint64_t)functions[i].size())
               ub_rhs[i] = functions[i].size();
       //printf("i = %d rhs= %lu size= %d weigth=%llu\n",i,ub_rhs[i],functions[i].size(),orderWeights[i]);
           }
@@ -1167,7 +1158,7 @@ void LinearSUClustering::bmoSearch(){
                 for (int j = 0; j < functions[i].size(); j++){
                   functions_to_assumptions[i].push(~functions[i][j]);
                 }
-              } else if (functions[i].size() != ub_rhs[i]){
+              } else if ((uint64_t)functions[i].size() != ub_rhs[i]){
                 encoders[i]->incUpdateCardinality(solver, functions[i], ub_rhs[i], encodingAssumptions);
                 assert(encodingAssumptions.size() == 1);
                 functions_to_assumptions[i].push(encodingAssumptions[0]);
@@ -1242,14 +1233,14 @@ void LinearSUClustering::bmoSearch(){
     //printf("current function =%d\n",current_function_id);
     //    printf("c updating the cardinality to %llu\n",rhs[current_function_id]);
     //  printf("c size of function %d\n",functions[current_function_id].size());
-          if (functions[current_function_id].size() != rhs[current_function_id]){
+          if ((uint64_t)functions[current_function_id].size() != rhs[current_function_id]){
             encoders[current_function_id]->incUpdateCardinality(solver, functions[current_function_id], rhs[current_function_id], encodingAssumptions);
             assert(encodingAssumptions.size() == 1);
             functions_to_assumptions[current_function_id].push(encodingAssumptions[0]);
           }
         } else {
       //printf("c creating encoder with id = %d and value = %d\n",current_function_id,rhs[current_function_id]);
-          if (functions[current_function_id].size() != rhs[current_function_id]){
+          if ((uint64_t)functions[current_function_id].size() != rhs[current_function_id]){
             encoders[current_function_id]->buildCardinality(solver, functions[current_function_id], rhs[current_function_id]);
             if (encoders[current_function_id]->hasCardEncoding()){
               encoders[current_function_id]->incUpdateCardinality(solver, functions[current_function_id], rhs[current_function_id], encodingAssumptions);

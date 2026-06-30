@@ -128,7 +128,7 @@ uint64_t SequenceStatistic::meanStatistic(vec<uint64_t> &sequence,
                                           uint64_t end_index) {
 
   uint64_t sum = 0;
-  for (int i = start_index; i <= end_index; i++) {
+  for (uint64_t i = start_index; i <= end_index; i++) {
     sum += sequence[i];
   }
   sum /= (end_index - start_index + 1);

@@ -40,6 +40,7 @@
 #include "MaxTypes.h"
 #include "utils/System.h"
 #include <algorithm>
+#include <functional>
 #include <map>
 #include <set>
 #include <utility>

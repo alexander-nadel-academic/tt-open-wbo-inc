@@ -60,7 +60,7 @@ void Encoder::encodeAMO(Solver *S, vec<Lit> &lits) {
 int Encoder::predictCardinality(Solver *S, vec<Lit> &lits, uint64_t rhs, int maxVal)
  {
 	 const int64_t approxVal = (int64_t)2 * (int64_t)lits.size() * rhs;
-	if (approxVal > (int64_t)INT_MAX || approxVal < rhs)
+	if (approxVal > (int64_t)INT_MAX || approxVal < (int64_t)rhs)
 	{
 		return INT_MAX;
 	}

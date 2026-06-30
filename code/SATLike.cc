@@ -327,7 +327,7 @@ void Satlike::build_instance(char *filename)
         clause_lit_count[c] = 0;
 
         iss >> org_clause_weight[c];
-        if (org_clause_weight[c] != top_clause_weight)
+        if ((unsigned long long)org_clause_weight[c] != top_clause_weight)
         {
             if (org_clause_weight[c] != 1)
                 problem_weighted = 1;
@@ -427,11 +427,6 @@ void Satlike::build_instance(char *filename)
 
 void Satlike::build_instance(int numVars, int numClauses, unsigned long long topClauseweight, lit **satlike_clause, int *satlike_clause_lit_count, long long *satlike_clause_weight)
 {
-    istringstream iss;
-    string line;
-    char tempstr1[10];
-    char tempstr2[10];
-
     /*** build problem data structures of the instance ***/
     start_timing();
 
@@ -443,7 +438,7 @@ void Satlike::build_instance(int numVars, int numClauses, unsigned long long top
     org_clause_weight = satlike_clause_weight;
 
     allocate_memory();
-    int v, c;
+    int v;
     cout << "c " << num_vars << " " << num_clauses << endl;
     for (v = 1; v <= num_vars; ++v)
     {
@@ -452,7 +447,6 @@ void Satlike::build_instance(int numVars, int numClauses, unsigned long long top
         var_neighbor[v] = NULL;
     }
 
-    int cur_lit;
     problem_weighted = 0;
     partial = 0;
     num_hclauses = num_sclauses = 0;
@@ -462,7 +456,6 @@ void Satlike::build_instance(int numVars, int numClauses, unsigned long long top
     //int *redunt_test = new int[num_vars + 1];
     //memset(redunt_test, 0, sizeof(int) * num_vars + 1);
     //Now, read the clauses, one at a time.
-    bool clause_reduent = false;
     for (int i = 0; i < num_clauses; ++i)
     {
         for (int j = 0; j < clause_lit_count[i]; ++j)
@@ -472,7 +465,7 @@ void Satlike::build_instance(int numVars, int numClauses, unsigned long long top
             var_lit_count[clause_lit[i][j].var_num]++;
         }
 
-        if (org_clause_weight[i] != top_clause_weight)
+        if ((unsigned long long)org_clause_weight[i] != top_clause_weight)
         {
             if (org_clause_weight[i] != 1)
                 problem_weighted = 1;
@@ -551,7 +544,7 @@ void Satlike::init(vector<int> &init_solution)
         already_in_soft_large_weight_stack[c] = 0;
         clause_selected_count[c] = 0;
 
-        if (org_clause_weight[c] == top_clause_weight)
+        if ((unsigned long long)org_clause_weight[c] == top_clause_weight)
             clause_weight[c] = 1;
         else
         {
@@ -1007,9 +1000,6 @@ void Satlike::update_goodvarstack2(int flipvar)
 			}
 		}
 
-		lit *clause_c;
-		int c;
-
 		for (int i = 0; i < score_change_stack_fill_pointer; i++)
 		{
 			int v = score_change_stack[i];
@@ -1081,7 +1071,6 @@ void Satlike::flip(int flipvar)
 	if (mse21)
 	{
 		int i, v, c;
-		int index;
 		lit *clause_c;
 
 		score_change_stack_fill_pointer = 0;
@@ -1141,9 +1130,8 @@ void Satlike::flip(int flipvar)
 		update_goodvarstack1(flipvar);
 	}
 	else
-	{	
+	{
 		int i, v, c;
-		int index;
 		lit *clause_c;
 
 		int org_flipvar_score = score[flipvar];
@@ -1207,9 +1195,8 @@ void Satlike::flip(int flipvar)
 void Satlike::flip2(int flipvar)
 {
 	assert(mse21);
-	
+
 	int i, v, c;
-    int index;
     lit *clause_c;
 
     score_change_stack_fill_pointer = 0;
@@ -1314,7 +1301,7 @@ bool Satlike::verify_sol()
 
         if (flag == 0)
         {
-            if (org_clause_weight[c] == top_clause_weight) //verify hard clauses
+            if ((unsigned long long)org_clause_weight[c] == top_clause_weight) //verify hard clauses
             {
                 //output the clause unsatisfied by the solution
                 cout << "c Error: hard clause " << c << " is not satisfied" << endl;
@@ -1340,7 +1327,7 @@ bool Satlike::verify_sol()
         }
     }
 
-    if (verify_unsat_weight == opt_unsat_weight)
+    if ((unsigned long long)verify_unsat_weight == opt_unsat_weight)
         return 1;
     else
     {
@@ -1364,7 +1351,7 @@ void Satlike::simple_print()
 
 inline void Satlike::unsat(int clause)
 {
-    if (org_clause_weight[clause] == top_clause_weight)
+    if ((unsigned long long)org_clause_weight[clause] == top_clause_weight)
     {
         index_in_hardunsat_stack[clause] = hardunsat_stack_fill_pointer;
         mypush(clause, hardunsat_stack);
@@ -1382,7 +1369,7 @@ inline void Satlike::sat(int clause)
 {
     int index, last_unsat_clause;
 
-    if (org_clause_weight[clause] == top_clause_weight)
+    if ((unsigned long long)org_clause_weight[clause] == top_clause_weight)
     {
         last_unsat_clause = mypop(hardunsat_stack);
         index = index_in_hardunsat_stack[clause];

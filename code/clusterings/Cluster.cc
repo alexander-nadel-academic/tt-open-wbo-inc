@@ -150,11 +150,11 @@ void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
   }
   vec<Soft> &soft_clauses = formula->getSoftClauses();
   uint64_t low_index, high_index, replacement_weight;
-  for (uint64_t i = 0; i < clusters.size(); i++) {
+  for (uint64_t i = 0; i < (uint64_t)clusters.size(); i++) {
     // find lower and upper bounds of the indices for the current cluster
     // for the last cluster, the upper bound is the last index
     low_index = clusters[i];
-    high_index = (i == clusters.size() - 1 ? original_weights.size() - 1
+    high_index = (i == (uint64_t)clusters.size() - 1 ? original_weights.size() - 1
                                            : clusters[i + 1] - 1);
     // find the representative weight for this cluster
     replacement_weight = statistic_finder.getSequenceStatistic(
@@ -202,7 +202,7 @@ void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
   }
   vec<Soft> &soft_clauses = formula->getSoftClauses();
   uint64_t low_index, high_index, replacement_weight;
-  for (uint64_t i = 0; i < clusters.size(); i++) {
+  for (uint64_t i = 0; i < (uint64_t)clusters.size(); i++) {
     // if all weights in the cluster to be formed are already equal, do not do
     // anything
     if (clusters[i].all_equal_in_cluster) {
@@ -211,7 +211,7 @@ void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
     // find lower and upper bounds of the indices for the current cluster
     // for the last cluster, the upper bound is the last index
     low_index = clusters[i].index;
-    high_index = (i == clusters.size() - 1 ? original_weights.size() - 1
+    high_index = (i == (uint64_t)clusters.size() - 1 ? original_weights.size() - 1
                                            : clusters[i + 1].index - 1);
     // find the representative weight for this cluster
     replacement_weight = statistic_finder.getSequenceStatistic(

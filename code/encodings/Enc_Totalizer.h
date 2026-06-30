@@ -129,15 +129,15 @@ protected:
                       TLitVector &output) {
   
 	  // We only need to count the sums up to k.
-	  for (int i = 0; i <= left.size(); i++) {
-		for (int j = 0; j <= right.size(); j++) {
+	  for (int i = 0; i <= (int)left.size(); i++) {
+		for (int j = 0; j <= (int)right.size(); j++) {
 		  if (i == 0 && j == 0)
 		  {
-			if (Torc::Instance()->GetTotProp0s() > 0 && i + j < output.size())
+			if (Torc::Instance()->GetTotProp0s() > 0 && i + j < (int)output.size())
 			{
 				addTernaryClause(S, left[i], right[j], ~output[i + j], blocking);
 				n_clauses++;
-			}  
+			}
 			continue;
 		  }
 
@@ -145,30 +145,30 @@ protected:
 			continue;
 
 		  if (i == 0) {
-			addBinaryClause(S, ~right[j - 1], output[j - 1], blocking);        
+			addBinaryClause(S, ~right[j - 1], output[j - 1], blocking);
 		  } else if (j == 0) {
-			addBinaryClause(S, ~left[i - 1], output[i - 1], blocking);        
+			addBinaryClause(S, ~left[i - 1], output[i - 1], blocking);
 		  } else {
-			addTernaryClause(S, ~left[i - 1], ~right[j - 1], output[i + j - 1], blocking);        
+			addTernaryClause(S, ~left[i - 1], ~right[j - 1], output[i + j - 1], blocking);
 		  }
-		  
+
 		  n_clauses++;
-		  
-		  if (Torc::Instance()->GetTotProp0s() > 0 && i + j < output.size())
+
+		  if (Torc::Instance()->GetTotProp0s() > 0 && i + j < (int)output.size())
 		  {
-			  if (i == left.size())
+			  if (i == (int)left.size())
 			  {
-				  addBinaryClause(S, right[j], ~output[i + j], blocking);              
+				  addBinaryClause(S, right[j], ~output[i + j], blocking);
 			  }
-			  else if (j == right.size())
+			  else if (j == (int)right.size())
 			  {
-				  addBinaryClause(S, left[i], ~output[i + j], blocking);              
+				  addBinaryClause(S, left[i], ~output[i + j], blocking);
 			  }
 			  else
 			  {
-				  addTernaryClause(S, left[i], right[j], ~output[i + j], blocking);              
-			  }	
-			  n_clauses++;	  
+				  addTernaryClause(S, left[i], right[j], ~output[i + j], blocking);
+			  }
+			  n_clauses++;
 		  }
 		}
 	  }

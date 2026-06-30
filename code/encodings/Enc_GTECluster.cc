@@ -80,12 +80,12 @@ bool GTECluster::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals
   }
   if (i == -1) {
     i = lsize;
-    for (; i<size; i++) {
+    for (; (unsigned int)i<size; i++) {
       if (iliterals[i].weight != iliterals[lsize].weight) {
         break;
       }
     }
-    if (i != size) {
+    if ((unsigned int)i != size) {
       lsize = i;
     } else lsize = size >> 1;
   }

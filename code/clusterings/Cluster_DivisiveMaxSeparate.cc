@@ -96,7 +96,7 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
                                                  uint64_t c) {
   // if the number of clusters is more than the number of weights, truncate it
   // to the number of weights
-  if (c > original_weights.size()) {
+  if (c > (uint64_t)original_weights.size()) {
     printf("c Limiting number of clusters to number of weights\n");
     c = original_weights.size();
     // weights will be the same as the original weights. This assumes that all
@@ -137,14 +137,14 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
       max_index = 0;
 
       // iterate over existing clusters to find the point of next split
-      for (uint64_t j = 0; j < cluster_indices.size(); j++) {
+      for (uint64_t j = 0; j < (uint64_t)cluster_indices.size(); j++) {
         // if all weights in a cluster are known to be identical, do not
         // iterate, as the max distance is known to be zero
         if (cluster_indices[j].all_equal_in_cluster) {
           continue;
         }
         low_index = cluster_indices[j].index;
-        high_index = (j == cluster_indices.size() - 1
+        high_index = (j == (uint64_t)cluster_indices.size() - 1
                           ? original_weights.size() - 1
                           : cluster_indices[j + 1].index - 1);
         intra_nonzero = false;
@@ -180,7 +180,7 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
 
       // add newly found index to 'cluster_indices'
       bool is_added = false;
-      for (uint64_t j = 0; j < cluster_indices.size(); j++) {
+      for (uint64_t j = 0; j < (uint64_t)cluster_indices.size(); j++) {
         if (cluster_indices[j].index > max_index && !is_added) {
           temp.push({max_index, false});
           is_added = true;
